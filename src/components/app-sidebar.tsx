@@ -1,12 +1,10 @@
 import {
-  Calendar,
   Home,
-  Inbox,
-  Search,
+  LayoutDashboard,
   Settings,
-  Bird,
   Activity,
   Package,
+  Bird,
   DollarSign,
   Menu,
 } from "lucide-react"
@@ -37,8 +35,13 @@ const items = [
     icon: Bird,
   },
   {
+    title: "Inventaire",
+    url: "/inventory",
+    icon: Package,
+  },
+  {
     title: "Santé",
-    url: "/health",
+    url: "#",
     icon: Activity,
   },
   {
@@ -89,9 +92,9 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-         <div className="p-4 text-xs text-muted-foreground">
-            v1.0.0
-         </div>
+        <div className="p-4 text-xs text-muted-foreground">
+          v1.0.0
+        </div>
       </SidebarFooter>
     </Sidebar>
   )
