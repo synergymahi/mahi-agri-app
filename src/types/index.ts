@@ -37,3 +37,27 @@ export interface HealthEvent {
     createdAt?: Date
     updatedAt?: Date
 }
+
+export interface InventoryItem {
+    id: string
+    name: string
+    type: "FEED" | "MEDICATION" | "EQUIPMENT" | "OTHER"
+    quantity: number
+    unit: string
+    minThreshold: number
+    currentMarketPrice?: number
+    createdAt?: Date
+    updatedAt?: Date
+}
+
+export interface InventoryTransaction {
+    id: string
+    itemId: string
+    type: "IN" | "OUT"
+    quantity: number
+    date: string | Date
+    batchId?: string | null
+    cost?: number
+    notes?: string
+    createdAt?: Date
+}
