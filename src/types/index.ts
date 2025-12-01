@@ -55,9 +55,22 @@ export interface InventoryTransaction {
     itemId: string
     type: "IN" | "OUT"
     quantity: number
-    date: string | Date
+    date: Date
     batchId?: string | null
     cost?: number
-    notes?: string
+    notes?: string | null
     createdAt?: Date
 }
+
+export interface ReproductionRecord {
+    id: string
+    batchId: string
+    date: Date
+    quantityCollected: number
+    damagedQuantity: number
+    notes?: string
+    createdAt?: Date
+    updatedAt?: Date
+}
+
+
