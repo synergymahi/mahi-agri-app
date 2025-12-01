@@ -16,7 +16,14 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
-const storage = getStorage(app);
+
+let storage: any = null;
+try {
+    storage = getStorage(app);
+} catch (e) {
+    console.warn("Firebase Storage failed to initialize (likely running on server):", e);
+}
+
 // const analytics = getAnalytics(app); // Analytics only works in browser, might need conditional check for SSR
 
 export { db, storage };
