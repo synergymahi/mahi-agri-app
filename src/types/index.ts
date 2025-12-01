@@ -73,4 +73,29 @@ export interface ReproductionRecord {
     updatedAt?: Date
 }
 
+export interface Sale {
+    id: string
+    batchId?: string
+    date: Date
+    item: string
+    quantity: number
+    unitPrice: number
+    totalAmount: number
+    notes?: string
+    createdAt?: Date
+    updatedAt?: Date
+}
+
+export interface Expense {
+    id: string
+    batchId?: string
+    date: Date
+    category: string
+    amount: number
+    notes?: string
+    invoiceUrl?: string
+    createdAt?: Date
+    updatedAt?: Date
+}
+
 

@@ -77,6 +77,7 @@ export default async function BatchDetailsPage({ params }: BatchDetailsPageProps
                     <TabsTrigger value="daily-logs">Suivi Quotidien</TabsTrigger>
                     <TabsTrigger value="health">Santé</TabsTrigger>
                     {batch.type === "LAYER" && <TabsTrigger value="reproduction">Ponte</TabsTrigger>}
+                    <TabsTrigger value="financials">Finance</TabsTrigger>
                 </TabsList>
                 <TabsContent value="daily-logs" className="space-y-4">
                     <div className="flex justify-between items-center">
@@ -98,6 +99,20 @@ export default async function BatchDetailsPage({ params }: BatchDetailsPageProps
                         <CreateReproductionDialog batchId={batch.id} />
                     </div>
                     <ReproductionList records={reproductionRecords} />
+                </TabsContent>
+                <TabsContent value="financials" className="space-y-4">
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-xl font-semibold">Rentabilité du Lot</h2>
+                    </div>
+                    {/* TODO: Implement Batch Financial Summary Component */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Compte de Résultat (Estimé)</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-muted-foreground">Les données financières détaillées pour ce lot seront disponibles bientôt.</p>
+                        </CardContent>
+                    </Card>
                 </TabsContent>
             </Tabs>
         </div>
