@@ -98,4 +98,21 @@ export interface Expense {
     updatedAt?: Date
 }
 
+export interface FarmProfile {
+    id: string
+    userId: string
+    farmName: string
+    ownerName: string
+    phoneNumber: string
+    location: string
+    coordinates?: {
+        lat: number
+        lng: number
+    }
+    farmingTypes: LivestockType[]
+    capacities: Partial<Record<LivestockType, number>>
+    createdAt?: Date
+    updatedAt?: Date
+}
+
 

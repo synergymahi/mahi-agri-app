@@ -20,6 +20,8 @@ export const metadata: Metadata = {
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { Toaster } from "@/components/ui/sonner"
+import { AuthProvider } from "@/components/auth-provider"
+import { ProfileBanner } from "@/components/profile-banner"
 
 export default function RootLayout({
   children,
@@ -31,19 +33,22 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SidebarProvider>
-          <AppSidebar />
-          <main className="w-full">
-            <div className="flex items-center p-4 border-b">
-              <SidebarTrigger />
-              <h1 className="ml-4 font-semibold">Mahi Agri App</h1>
-            </div>
-            <div className="p-4">
-              {children}
-            </div>
-          </main>
-          <Toaster />
-        </SidebarProvider>
+        <AuthProvider>
+          <SidebarProvider>
+            <AppSidebar />
+            <main className="w-full flex flex-col">
+              <ProfileBanner />
+              <div className="flex items-center p-4 border-b">
+                <SidebarTrigger />
+                <h1 className="ml-4 font-semibold">Mahi Agri App</h1>
+              </div>
+              <div className="p-4 flex-1">
+                {children}
+              </div>
+            </main>
+            <Toaster />
+          </SidebarProvider>
+        </AuthProvider>
       </body>
     </html>
   );
