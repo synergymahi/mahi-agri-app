@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Home,
   LayoutDashboard,
@@ -7,7 +9,10 @@ import {
   Bird,
   DollarSign,
   Menu,
+  LogOut,
 } from "lucide-react"
+import { useAuth } from "@/components/auth-provider"
+import { Button } from "@/components/ui/button"
 
 import {
   Sidebar,
@@ -62,6 +67,8 @@ const items = [
 ]
 
 export function AppSidebar() {
+  const { user, signOut } = useAuth()
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -92,8 +99,22 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <div className="p-4 text-xs text-muted-foreground">
-          v1.0.0
+        <div className="p-4 border-t">
+          {user ? (
+            <div className="flex flex-col gap-2">
+              <div className="text-sm font-medium truncate">
+                {user.phoneNumber}
+              </div>
+              <Button variant="outline" size="sm" onClick={signOut} className="w-full justify-start">
+                <LogOut className="mr-2 h-4 w-4" />
+                Déconnexion
+              </Button>
+            </div>
+          ) : (
+            <div className="text-xs text-muted-foreground">
+              Non connecté
+            </div>
+          )}
         </div>
       </SidebarFooter>
     </Sidebar>
