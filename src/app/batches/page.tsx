@@ -1,8 +1,45 @@
+"use client"
+
 import { BatchList } from "@/components/livestock/batch-list"
 import { CreateBatchDialog } from "@/components/livestock/create-batch-dialog"
 import { Separator } from "@/components/ui/separator"
+import { useAuth } from "@/components/auth-provider"
+import { useEffect, useState } from "react"
+import { getBatches } from "@/app/actions/batch-actions"
+import { Batch } from "@/types"
+import { Loader2 } from "lucide-react"
 
 export default function BatchesPage() {
+    const { user, loading } = useAuth()
+    const [batches, setBatches] = useState<Batch[]>([])
+    const [fetching, setFetching] = useState(true)
+
+    useEffect(() => {
+        async function fetchBatches() {
+            if (user?.uid) {
+                const data = await getBatches(user.uid)
+                setBatches(data)
+            }
+            setFetching(false)
+        }
+
+        if (!loading) {
+            if (user) {
+                fetchBatches()
+            } else {
+                setFetching(false)
+            }
+        }
+    }, [user, loading])
+
+    if (loading || fetching) {
+        return (
+            <div className="flex h-full items-center justify-center p-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        )
+    }
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -15,7 +52,7 @@ export default function BatchesPage() {
                 <CreateBatchDialog />
             </div>
             <Separator />
-            <BatchList />
+            <BatchList initialBatches={batches} />
         </div>
     )
 }

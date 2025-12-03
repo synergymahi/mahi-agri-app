@@ -3,6 +3,7 @@ export type BatchStatus = "ACTIVE" | "SOLD" | "CLOSED"
 
 export interface Batch {
     id: string
+    userId: string
     type: LivestockType
     name: string
     startDate: string | Date // Firestore timestamps might need conversion
@@ -40,6 +41,7 @@ export interface HealthEvent {
 
 export interface InventoryItem {
     id: string
+    userId: string
     name: string
     type: "FEED" | "MEDICATION" | "EQUIPMENT" | "OTHER"
     quantity: number
@@ -52,6 +54,7 @@ export interface InventoryItem {
 
 export interface InventoryTransaction {
     id: string
+    userId: string
     itemId: string
     type: "IN" | "OUT"
     quantity: number
@@ -75,6 +78,7 @@ export interface ReproductionRecord {
 
 export interface Sale {
     id: string
+    userId: string
     batchId?: string
     date: Date
     item: string
@@ -88,6 +92,7 @@ export interface Sale {
 
 export interface Expense {
     id: string
+    userId: string
     batchId?: string
     date: Date
     category: string

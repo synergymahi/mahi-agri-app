@@ -62,13 +62,15 @@ export async function createSale(prevState: any, formData: FormData) {
         return { message: "Vente enregistrée avec succès", success: true }
     } catch (error) {
         console.error("Failed to create sale:", error)
-        return { message: "Erreur lors de l'enregistrement" }
+        return { message: "Erreur lors de l'enregistrement de la vente" }
     }
 }
 
 export async function createExpense(prevState: any, formData: FormData) {
+    const userId = formData.get("userId") as string
+    if (!userId) return { message: "Utilisateur non identifié" }
+
     const validatedFields = expenseSchema.safeParse({
-        batchId: formData.get("batchId") || undefined,
         date: formData.get("date"),
         category: formData.get("category"),
         amount: formData.get("amount"),
@@ -82,66 +84,64 @@ export async function createExpense(prevState: any, formData: FormData) {
         }
     }
 
-    const { batchId, date, category, amount, notes } = validatedFields.data
+    const data = validatedFields.data
 
     try {
         await addDoc(collection(db, "expenses"), {
-            batchId: batchId || null,
-            date: Timestamp.fromDate(date),
-            category,
-            amount,
-            notes: notes || null,
+            ...data,
+            userId,
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now(),
         })
 
         revalidatePath("/finance")
-        if (batchId) revalidatePath(`/batches/${batchId}`)
         return { message: "Dépense enregistrée avec succès", success: true }
     } catch (error) {
         console.error("Failed to create expense:", error)
-        return { message: "Erreur lors de l'enregistrement" }
+        return { message: "Erreur lors de l'enregistrement de la dépense" }
     }
 }
 
-export async function getSales() {
+export async function getSales(userId?: string) {
+    if (!userId) return []
+
     try {
-        const q = query(collection(db, "sales"), orderBy("date", "desc"))
+        const q = query(collection(db, "sales"), where("userId", "==", userId), orderBy("date", "desc"))
         const querySnapshot = await getDocs(q)
-        const sales: Sale[] = []
-        querySnapshot.forEach((doc) => {
+
+        return querySnapshot.docs.map(doc => {
             const data = doc.data()
-            sales.push({
+            return {
                 id: doc.id,
                 ...data,
-                date: data.date?.toDate(),
+                date: data.date?.toDate(), // Convert Firestore Timestamp to Date
                 createdAt: data.createdAt?.toDate(),
                 updatedAt: data.updatedAt?.toDate(),
-            } as Sale)
+            } as Sale
         })
-        return sales
     } catch (error) {
         console.error("Failed to fetch sales:", error)
         return []
     }
 }
 
-export async function getExpenses() {
+export async function getExpenses(userId?: string) {
+    if (!userId) return []
+
     try {
-        const q = query(collection(db, "expenses"), orderBy("date", "desc"))
+        const q = query(collection(db, "expenses"), where("userId", "==", userId), orderBy("date", "desc"))
         const querySnapshot = await getDocs(q)
-        const expenses: Expense[] = []
-        querySnapshot.forEach((doc) => {
+
+        return querySnapshot.docs.map(doc => {
             const data = doc.data()
-            expenses.push({
+            return {
                 id: doc.id,
                 ...data,
                 date: data.date?.toDate(),
                 createdAt: data.createdAt?.toDate(),
                 updatedAt: data.updatedAt?.toDate(),
-            } as Expense)
+            } as Expense
         })
-        return expenses
     } catch (error) {
         console.error("Failed to fetch expenses:", error)
         return []

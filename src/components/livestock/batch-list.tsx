@@ -1,5 +1,4 @@
 import { Batch } from "@/types"
-import { getBatches } from "@/app/actions/batch-actions"
 import {
     Table,
     TableBody,
@@ -13,10 +12,12 @@ import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import Link from "next/link"
 
-export async function BatchList() {
-    const batches = await getBatches()
+interface BatchListProps {
+    initialBatches: Batch[]
+}
 
-    if (batches.length === 0) {
+export function BatchList({ initialBatches }: BatchListProps) {
+    if (initialBatches.length === 0) {
         return (
             <div className="text-center p-8 border rounded-lg bg-muted/10">
                 <p className="text-muted-foreground">Aucune bande enregistrée.</p>
@@ -43,7 +44,7 @@ export async function BatchList() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {batches.map((batch: Batch) => (
+                    {initialBatches.map((batch: Batch) => (
                         <TableRow key={batch.id}>
                             <TableCell className="font-medium">
                                 <Link href={`/batches/${batch.id}`} className="hover:underline">
