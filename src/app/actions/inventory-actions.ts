@@ -23,6 +23,7 @@ const transactionSchema = z.object({
     batchId: z.string().optional().nullable(),
     cost: z.coerce.number().optional(),
     notes: z.string().optional(),
+    proofUrl: z.string().optional().nullable(),
 })
 
 export async function createInventoryItem(prevState: any, formData: FormData) {
@@ -99,6 +100,7 @@ export async function createTransaction(prevState: any, formData: FormData) {
         batchId: formData.get("batchId"), // Keep batchId as it's in the schema
         notes: formData.get("notes"),
         cost: formData.get("cost"),
+        proofUrl: formData.get("proofUrl"),
     })
 
     if (!validatedFields.success) {
@@ -156,7 +158,7 @@ export async function createTransaction(prevState: any, formData: FormData) {
 export async function getInventoryTransactions(itemId: string) {
     try {
         const q = query(
-            collection(db, "inventoryTransactions"),
+            collection(db, "inventory_transactions"),
             where("itemId", "==", itemId),
             orderBy("date", "desc")
         )
@@ -189,6 +191,7 @@ export async function updateInventoryTransaction(prevState: any, formData: FormD
         batchId: formData.get("batchId"),
         cost: formData.get("cost"),
         notes: formData.get("notes"),
+        proofUrl: formData.get("proofUrl"),
     })
 
     if (!validatedFields.success) {
@@ -198,12 +201,12 @@ export async function updateInventoryTransaction(prevState: any, formData: FormD
         }
     }
 
-    const { itemId, type, quantity, date, batchId, cost, notes } = validatedFields.data
+    const { itemId, type, quantity, date, batchId, cost, notes, proofUrl } = validatedFields.data
 
     try {
         await runTransaction(db, async (transaction) => {
             // 1. Get the existing transaction
-            const transactionRef = doc(db, "inventoryTransactions", transactionId)
+            const transactionRef = doc(db, "inventory_transactions", transactionId)
             const transactionDoc = await transaction.get(transactionRef)
 
             if (!transactionDoc.exists()) {
@@ -252,6 +255,7 @@ export async function updateInventoryTransaction(prevState: any, formData: FormD
                 batchId: batchId || null,
                 cost: cost || 0,
                 notes: notes || null,
+                proofUrl: proofUrl || null,
             })
 
             // 6. Update the inventory item stock

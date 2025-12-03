@@ -7,6 +7,7 @@ import * as z from "zod"
 import { Plus } from "lucide-react"
 import { createInventoryItem } from "@/app/actions/inventory-actions"
 import { toast } from "sonner"
+import { useAuth } from "@/components/auth-provider"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -45,6 +46,7 @@ const formSchema = z.object({
 })
 
 export function AddItemDialog() {
+    const { user } = useAuth()
     const [open, setOpen] = useState(false)
     const form = useForm({
         resolver: zodResolver(formSchema),
@@ -59,7 +61,13 @@ export function AddItemDialog() {
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
+        if (!user) {
+            toast.error("Vous devez être connecté pour ajouter un article.")
+            return
+        }
+
         const formData = new FormData()
+        formData.append("userId", user.uid)
         formData.append("name", values.name)
         formData.append("type", values.type)
         formData.append("quantity", values.quantity.toString())

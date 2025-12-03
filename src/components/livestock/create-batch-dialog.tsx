@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Plus } from "lucide-react"
 import { createBatch } from "@/app/actions/batch-actions"
+import { useAuth } from "@/components/auth-provider"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -43,6 +44,7 @@ const formSchema = z.object({
 })
 
 export function CreateBatchDialog() {
+    const { user } = useAuth()
     const [open, setOpen] = useState(false)
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema) as any,
@@ -55,7 +57,13 @@ export function CreateBatchDialog() {
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
+        if (!user) {
+            toast.error("Vous devez être connecté pour créer une bande.")
+            return
+        }
+
         const formData = new FormData()
+        formData.append("userId", user.uid)
         formData.append("name", values.name)
         formData.append("type", values.type)
         formData.append("startDate", values.startDate)

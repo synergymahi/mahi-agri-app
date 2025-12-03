@@ -62,6 +62,7 @@ export interface InventoryTransaction {
     batchId?: string | null
     cost?: number
     notes?: string | null
+    proofUrl?: string | null
     createdAt?: Date
 }
 

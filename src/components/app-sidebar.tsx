@@ -45,16 +45,6 @@ const items = [
     icon: Package,
   },
   {
-    title: "Santé",
-    url: "#",
-    icon: Activity,
-  },
-  {
-    title: "Stock & Aliment",
-    url: "/inventory",
-    icon: Package,
-  },
-  {
     title: "Finance",
     url: "/finance",
     icon: DollarSign,
