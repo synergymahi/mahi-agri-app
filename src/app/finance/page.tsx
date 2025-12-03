@@ -1,3 +1,5 @@
+"use client"
+
 import { getSales, getExpenses } from "@/app/actions/finance-actions"
 import { CreateSaleDialog } from "@/components/finance/create-sale-dialog"
 import { CreateExpenseDialog } from "@/components/finance/create-expense-dialog"
@@ -5,15 +7,50 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
-import { DollarSign, TrendingDown, TrendingUp } from "lucide-react"
+import { DollarSign, TrendingDown, TrendingUp, Loader2 } from "lucide-react"
+import { useAuth } from "@/components/auth-provider"
+import { useEffect, useState } from "react"
+import { Sale, Expense } from "@/types"
 
-export default async function FinancePage() {
-    const sales = await getSales()
-    const expenses = await getExpenses()
+export default function FinancePage() {
+    const { user, loading } = useAuth()
+    const [sales, setSales] = useState<Sale[]>([])
+    const [expenses, setExpenses] = useState<Expense[]>([])
+    const [fetching, setFetching] = useState(true)
+
+    useEffect(() => {
+        async function fetchData() {
+            if (user?.uid) {
+                const [salesData, expensesData] = await Promise.all([
+                    getSales(user.uid),
+                    getExpenses(user.uid)
+                ])
+                setSales(salesData)
+                setExpenses(expensesData)
+            }
+            setFetching(false)
+        }
+
+        if (!loading) {
+            if (user) {
+                fetchData()
+            } else {
+                setFetching(false)
+            }
+        }
+    }, [user, loading])
 
     const totalRevenue = sales.reduce((acc, sale) => acc + sale.totalAmount, 0)
     const totalExpenses = expenses.reduce((acc, expense) => acc + expense.amount, 0)
     const netProfit = totalRevenue - totalExpenses
+
+    if (loading || fetching) {
+        return (
+            <div className="flex h-full items-center justify-center p-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        )
+    }
 
     return (
         <div className="space-y-6">

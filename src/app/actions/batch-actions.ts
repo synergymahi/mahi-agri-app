@@ -1,7 +1,7 @@
 "use server"
 
 import { db } from "@/lib/firebase"
-import { collection, addDoc, getDocs, updateDoc, doc, query, orderBy, Timestamp } from "firebase/firestore"
+import { collection, addDoc, getDocs, updateDoc, doc, query, orderBy, Timestamp, where } from "firebase/firestore"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { Batch } from "@/types"
@@ -43,9 +43,12 @@ export async function createBatch(prevState: any, formData: FormData) {
         })
         revalidatePath("/batches")
         return { message: "Bande créée avec succès", success: true }
+
+        revalidatePath("/batches")
+        return { message: "Lot créé avec succès", success: true }
     } catch (error) {
         console.error("Failed to create batch:", error)
-        return { message: "Erreur lors de la création de la bande" }
+        return { message: "Erreur lors de la création du lot" }
     }
 }
 
@@ -84,22 +87,27 @@ export async function updateBatch(id: string, prevState: any, formData: FormData
     }
 }
 
-export async function getBatches() {
+export async function getBatches(userId?: string) {
+    if (!userId) return []
+
     try {
-        const q = query(collection(db, "batches"), orderBy("createdAt", "desc"))
+        const q = query(
+            collection(db, "batches"),
+            where("userId", "==", userId),
+            orderBy("createdAt", "desc")
+        )
         const querySnapshot = await getDocs(q)
-        const batches: Batch[] = []
-        querySnapshot.forEach((doc) => {
+
+        return querySnapshot.docs.map(doc => {
             const data = doc.data()
-            batches.push({
+            return {
                 id: doc.id,
                 ...data,
-                startDate: data.startDate.toDate().toISOString(),
+                startDate: data.startDate?.toDate(),
                 createdAt: data.createdAt?.toDate(),
                 updatedAt: data.updatedAt?.toDate(),
-            } as Batch)
+            } as Batch
         })
-        return batches
     } catch (error) {
         console.error("Failed to fetch batches:", error)
         return []

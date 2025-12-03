@@ -1,7 +1,7 @@
 "use server"
 
 import { db } from "@/lib/firebase"
-import { collection, addDoc, getDocs, query, orderBy, Timestamp, doc, runTransaction, where } from "firebase/firestore"
+import { collection, addDoc, getDocs, query, orderBy, Timestamp, doc, updateDoc, getDoc, where, runTransaction } from "firebase/firestore"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { InventoryItem, InventoryTransaction } from "@/types"
@@ -26,6 +26,9 @@ const transactionSchema = z.object({
 })
 
 export async function createInventoryItem(prevState: any, formData: FormData) {
+    const userId = formData.get("userId") as string
+    if (!userId) return { message: "Utilisateur non identifié" }
+
     const validatedFields = inventoryItemSchema.safeParse({
         name: formData.get("name"),
         type: formData.get("type"),
@@ -42,16 +45,12 @@ export async function createInventoryItem(prevState: any, formData: FormData) {
         }
     }
 
-    const { name, type, quantity, unit, minThreshold, currentMarketPrice } = validatedFields.data
+    const data = validatedFields.data
 
     try {
         await addDoc(collection(db, "inventory"), {
-            name,
-            type,
-            quantity,
-            unit,
-            minThreshold,
-            currentMarketPrice: currentMarketPrice || 0,
+            ...data,
+            userId,
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now(),
         })
@@ -64,36 +63,42 @@ export async function createInventoryItem(prevState: any, formData: FormData) {
     }
 }
 
-export async function getInventoryItems() {
+export async function getInventoryItems(userId?: string) {
+    if (!userId) return []
+
     try {
-        const q = query(collection(db, "inventory"), orderBy("name"))
+        const q = query(collection(db, "inventory"), where("userId", "==", userId), orderBy("name"))
         const querySnapshot = await getDocs(q)
-        const items: InventoryItem[] = []
-        querySnapshot.forEach((doc) => {
+
+        return querySnapshot.docs.map(doc => {
             const data = doc.data()
-            items.push({
+            return {
                 id: doc.id,
                 ...data,
                 createdAt: data.createdAt?.toDate(),
                 updatedAt: data.updatedAt?.toDate(),
-            } as InventoryItem)
+            } as InventoryItem
         })
-        return items
     } catch (error) {
         console.error("Failed to fetch inventory items:", error)
         return []
     }
 }
 
+// Note: Transactions are linked to items, which are linked to users. 
+// But for safety and easier querying, we should also add userId to transactions.
 export async function createTransaction(prevState: any, formData: FormData) {
+    const userId = formData.get("userId") as string
+    if (!userId) return { message: "Utilisateur non identifié" }
+
     const validatedFields = transactionSchema.safeParse({
         itemId: formData.get("itemId"),
         type: formData.get("type"),
         quantity: formData.get("quantity"),
         date: formData.get("date"),
-        batchId: formData.get("batchId"),
-        cost: formData.get("cost"),
+        batchId: formData.get("batchId"), // Keep batchId as it's in the schema
         notes: formData.get("notes"),
+        cost: formData.get("cost"),
     })
 
     if (!validatedFields.success) {
@@ -103,49 +108,47 @@ export async function createTransaction(prevState: any, formData: FormData) {
         }
     }
 
-    const { itemId, type, quantity, date, batchId, cost, notes } = validatedFields.data
+    const data = validatedFields.data
 
     try {
         await runTransaction(db, async (transaction) => {
-            const itemRef = doc(db, "inventory", itemId)
+            const itemRef = doc(db, "inventory", data.itemId)
             const itemDoc = await transaction.get(itemRef)
 
             if (!itemDoc.exists()) {
                 throw "Item does not exist!"
             }
 
-            const currentQuantity = itemDoc.data().quantity || 0
-            const newQuantity = type === "IN" ? currentQuantity + quantity : currentQuantity - quantity
+            const currentQty = itemDoc.data().quantity || 0
+            const newQty = data.type === "IN"
+                ? currentQty + data.quantity
+                : currentQty - data.quantity
 
-            if (newQuantity < 0) {
+            if (newQty < 0) {
                 throw "Stock insuffisant !"
             }
 
-            // Create transaction record
-            const newTransactionRef = doc(collection(db, "inventoryTransactions"))
+            // Create Transaction Record
+            const newTransactionRef = doc(collection(db, "inventory_transactions"))
             transaction.set(newTransactionRef, {
-                itemId,
-                type,
-                quantity,
-                date: Timestamp.fromDate(date),
-                batchId: batchId || null,
-                cost: cost || 0,
-                notes: notes || null,
+                ...data,
+                date: Timestamp.fromDate(data.date),
+                userId,
                 createdAt: Timestamp.now(),
             })
 
-            // Update inventory item quantity
+            // Update Inventory Item Quantity
             transaction.update(itemRef, {
-                quantity: newQuantity,
-                updatedAt: Timestamp.now(),
+                quantity: newQty,
+                updatedAt: Timestamp.now()
             })
         })
 
         revalidatePath("/inventory")
-        return { message: "Transaction enregistrée avec succès", success: true }
+        return { message: "Transaction enregistrée", success: true }
     } catch (error) {
         console.error("Failed to create transaction:", error)
-        return { message: typeof error === 'string' ? error : "Erreur lors de l'enregistrement" }
+        return { message: typeof error === 'string' ? error : "Erreur lors de la transaction" }
     }
 }
 
