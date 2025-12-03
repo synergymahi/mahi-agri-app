@@ -11,6 +11,7 @@ import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import { storage } from "@/lib/firebase"
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
+import { useAuth } from "@/components/auth-provider"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -60,6 +61,7 @@ interface CreateExpenseDialogProps {
 }
 
 export function CreateExpenseDialog({ batchId }: CreateExpenseDialogProps) {
+    const { user } = useAuth()
     const [open, setOpen] = useState(false)
     const [uploading, setUploading] = useState(false)
     const [invoiceFile, setInvoiceFile] = useState<File | null>(null)
@@ -91,6 +93,11 @@ export function CreateExpenseDialog({ batchId }: CreateExpenseDialogProps) {
     }
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
+        if (!user) {
+            toast.error("Vous devez être connecté pour enregistrer une dépense.")
+            return
+        }
+
         setUploading(true)
         let invoiceUrl = values.invoiceUrl
 
@@ -105,6 +112,7 @@ export function CreateExpenseDialog({ batchId }: CreateExpenseDialogProps) {
         }
 
         const formData = new FormData()
+        formData.append("userId", user.uid)
         if (batchId) formData.append("batchId", batchId)
         formData.append("date", values.date.toISOString())
         formData.append("category", values.category)

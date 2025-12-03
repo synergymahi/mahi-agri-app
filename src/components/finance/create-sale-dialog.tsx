@@ -9,6 +9,7 @@ import { createSale } from "@/app/actions/finance-actions"
 import { toast } from "sonner"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
+import { useAuth } from "@/components/auth-provider"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -58,6 +59,7 @@ interface CreateSaleDialogProps {
 }
 
 export function CreateSaleDialog({ batchId }: CreateSaleDialogProps) {
+    const { user } = useAuth()
     const [open, setOpen] = useState(false)
     const form = useForm<any>({
         resolver: zodResolver(formSchema),
@@ -71,7 +73,13 @@ export function CreateSaleDialog({ batchId }: CreateSaleDialogProps) {
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
+        if (!user) {
+            toast.error("Vous devez être connecté pour enregistrer une vente.")
+            return
+        }
+
         const formData = new FormData()
+        formData.append("userId", user.uid)
         if (batchId) formData.append("batchId", batchId)
         formData.append("date", values.date.toISOString())
         formData.append("item", values.item)

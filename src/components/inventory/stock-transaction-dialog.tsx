@@ -4,13 +4,16 @@ import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { ArrowRightLeft, Calendar as CalendarIcon } from "lucide-react"
+import { ArrowRightLeft, Calendar as CalendarIcon, Upload, X } from "lucide-react"
 import { createTransaction } from "@/app/actions/inventory-actions"
 import { getBatches } from "@/app/actions/batch-actions"
 import { toast } from "sonner"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import { InventoryItem, Batch } from "@/types"
+import { useAuth } from "@/components/auth-provider"
+import { storage } from "@/lib/firebase"
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -54,6 +57,7 @@ const formSchema = z.object({
     batchId: z.string().optional(),
     cost: z.coerce.number().optional(),
     notes: z.string().optional(),
+    proofUrl: z.string().optional(),
 })
 
 interface StockTransactionDialogProps {
@@ -61,8 +65,11 @@ interface StockTransactionDialogProps {
 }
 
 export function StockTransactionDialog({ item }: StockTransactionDialogProps) {
+    const { user } = useAuth()
     const [open, setOpen] = useState(false)
     const [batches, setBatches] = useState<Batch[]>([])
+    const [uploading, setUploading] = useState(false)
+    const [proofFile, setProofFile] = useState<File | null>(null)
 
     const form = useForm({
         resolver: zodResolver(formSchema),
@@ -72,23 +79,58 @@ export function StockTransactionDialog({ item }: StockTransactionDialogProps) {
             date: new Date(),
             cost: 0,
             notes: "",
+            proofUrl: "",
         },
     })
 
     const transactionType = form.watch("type")
 
     useEffect(() => {
-        if (open && transactionType === "OUT") {
+        if (open && transactionType === "OUT" && user) {
             const fetchBatches = async () => {
-                const data = await getBatches()
+                const data = await getBatches(user.uid)
                 setBatches(data.filter(b => b.status === "ACTIVE"))
             }
             fetchBatches()
         }
-    }, [open, transactionType])
+    }, [open, transactionType, user])
+
+    async function handleFileUpload(file: File) {
+        if (!file) return null
+
+        try {
+            const storageRef = ref(storage, `inventory-proofs/${Date.now()}_${file.name}`)
+            const snapshot = await uploadBytes(storageRef, file)
+            const downloadURL = await getDownloadURL(snapshot.ref)
+            return downloadURL
+        } catch (error) {
+            console.error("Error uploading file:", error)
+            toast.error("Erreur lors du téléchargement du justificatif")
+            return null
+        }
+    }
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
+        if (!user) {
+            toast.error("Vous devez être connecté pour enregistrer une transaction.")
+            return
+        }
+
+        setUploading(true)
+        let proofUrl = values.proofUrl
+
+        if (proofFile) {
+            const url = await handleFileUpload(proofFile)
+            if (url) {
+                proofUrl = url
+            } else {
+                setUploading(false)
+                return // Stop if upload failed
+            }
+        }
+
         const formData = new FormData()
+        formData.append("userId", user.uid)
         formData.append("itemId", item.id)
         formData.append("type", values.type)
         formData.append("quantity", values.quantity.toString())
@@ -96,12 +138,15 @@ export function StockTransactionDialog({ item }: StockTransactionDialogProps) {
         if (values.batchId) formData.append("batchId", values.batchId)
         if (values.cost) formData.append("cost", values.cost.toString())
         if (values.notes) formData.append("notes", values.notes)
+        if (proofUrl) formData.append("proofUrl", proofUrl)
 
         const result = await createTransaction(null, formData)
 
+        setUploading(false)
         if (result?.success) {
             setOpen(false)
             form.reset()
+            setProofFile(null)
             toast.success("Transaction enregistrée")
         } else {
             console.error(result?.message)
@@ -246,6 +291,38 @@ export function StockTransactionDialog({ item }: StockTransactionDialogProps) {
                             />
                         )}
 
+                        <FormItem>
+                            <FormLabel>Justificatif (Optionnel)</FormLabel>
+                            <FormControl>
+                                <div className="flex items-center gap-2">
+                                    <Input
+                                        type="file"
+                                        accept="image/*,.pdf"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0]
+                                            if (file) setProofFile(file)
+                                        }}
+                                        className="cursor-pointer"
+                                    />
+                                    {proofFile && (
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => setProofFile(null)}
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </Button>
+                                    )}
+                                </div>
+                            </FormControl>
+                            {proofFile && (
+                                <p className="text-sm text-muted-foreground">
+                                    Fichier sélectionné: {proofFile.name}
+                                </p>
+                            )}
+                        </FormItem>
+
                         <FormField
                             control={form.control}
                             name="notes"
@@ -264,7 +341,10 @@ export function StockTransactionDialog({ item }: StockTransactionDialogProps) {
                         />
 
                         <DialogFooter>
-                            <Button type="submit">Enregistrer</Button>
+                            <Button type="submit" disabled={uploading}>
+                                {uploading && <Upload className="mr-2 h-4 w-4 animate-spin" />}
+                                {uploading ? "Enregistrement..." : "Enregistrer"}
+                            </Button>
                         </DialogFooter>
                     </form>
                 </Form>

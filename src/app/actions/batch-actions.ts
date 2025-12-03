@@ -14,6 +14,9 @@ const batchSchema = z.object({
 })
 
 export async function createBatch(prevState: any, formData: FormData) {
+    const userId = formData.get("userId") as string
+    if (!userId) return { message: "Utilisateur non identifié" }
+
     const validatedFields = batchSchema.safeParse({
         name: formData.get("name"),
         type: formData.get("type"),
@@ -32,6 +35,7 @@ export async function createBatch(prevState: any, formData: FormData) {
 
     try {
         await addDoc(collection(db, "batches"), {
+            userId,
             name,
             type,
             startDate: Timestamp.fromDate(startDate),
@@ -43,9 +47,6 @@ export async function createBatch(prevState: any, formData: FormData) {
         })
         revalidatePath("/batches")
         return { message: "Bande créée avec succès", success: true }
-
-        revalidatePath("/batches")
-        return { message: "Lot créé avec succès", success: true }
     } catch (error) {
         console.error("Failed to create batch:", error)
         return { message: "Erreur lors de la création du lot" }
