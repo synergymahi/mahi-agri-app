@@ -1,7 +1,7 @@
 "use server"
 
 import { db } from "@/lib/firebase"
-import { collection, addDoc, getDocs, query, orderBy, Timestamp, doc, updateDoc, getDoc, where, runTransaction } from "firebase/firestore"
+import { collection, addDoc, getDocs, query, orderBy, Timestamp, doc, updateDoc, getDoc, where, runTransaction, deleteDoc } from "firebase/firestore"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { InventoryItem, InventoryTransaction } from "@/types"
@@ -61,6 +61,60 @@ export async function createInventoryItem(prevState: any, formData: FormData) {
     } catch (error) {
         console.error("Failed to create inventory item:", error)
         return { message: "Erreur lors de l'ajout de l'article" }
+    }
+}
+
+export async function updateInventoryItem(prevState: any, formData: FormData) {
+    const id = formData.get("id") as string
+    const userId = formData.get("userId") as string
+
+    if (!id || !userId) return { message: "Information manquante" }
+
+    const validatedFields = inventoryItemSchema.safeParse({
+        name: formData.get("name"),
+        type: formData.get("type"),
+        quantity: formData.get("quantity"),
+        unit: formData.get("unit"),
+        minThreshold: formData.get("minThreshold"),
+        currentMarketPrice: formData.get("currentMarketPrice"),
+    })
+
+    if (!validatedFields.success) {
+        return {
+            errors: validatedFields.error.flatten().fieldErrors,
+            message: "Erreur de validation",
+        }
+    }
+
+    try {
+        const itemRef = doc(db, "inventory", id)
+        await updateDoc(itemRef, {
+            ...validatedFields.data,
+            updatedAt: Timestamp.now(),
+        })
+
+        revalidatePath("/inventory")
+        return { message: "Article mis à jour avec succès", success: true }
+    } catch (error) {
+        console.error("Failed to update inventory item:", error)
+        return { message: "Erreur lors de la mise à jour de l'article" }
+    }
+}
+
+export async function deleteInventoryItem(itemId: string) {
+    if (!itemId) return { message: "ID manquant" }
+
+    try {
+        // Check for dependencies? For now, we allow deletion but maybe warn user?
+        // Ideally we should check if there are transactions linked to this item.
+        // But for MVP/Polish, direct delete is acceptable if user confirms.
+
+        await deleteDoc(doc(db, "inventory", itemId))
+        revalidatePath("/inventory")
+        return { message: "Article supprimé avec succès", success: true }
+    } catch (error) {
+        console.error("Failed to delete inventory item:", error)
+        return { message: "Erreur lors de la suppression de l'article" }
     }
 }
 

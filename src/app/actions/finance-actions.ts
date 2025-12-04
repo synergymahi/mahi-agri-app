@@ -102,6 +102,114 @@ export async function createExpense(prevState: any, formData: FormData) {
     }
 }
 
+export async function updateSale(prevState: any, formData: FormData) {
+    const id = formData.get("id") as string
+    const userId = formData.get("userId") as string
+
+    if (!id || !userId) return { message: "Information manquante" }
+
+    const validatedFields = saleSchema.safeParse({
+        batchId: formData.get("batchId") || undefined,
+        date: formData.get("date"),
+        item: formData.get("item"),
+        quantity: formData.get("quantity"),
+        unitPrice: formData.get("unitPrice"),
+        notes: formData.get("notes"),
+    })
+
+    if (!validatedFields.success) {
+        return {
+            errors: validatedFields.error.flatten().fieldErrors,
+            message: "Erreur de validation",
+        }
+    }
+
+    const { batchId, date, item, quantity, unitPrice, notes } = validatedFields.data
+    const totalAmount = quantity * unitPrice
+
+    try {
+        const saleRef = doc(db, "sales", id)
+        await updateDoc(saleRef, {
+            batchId: batchId || null,
+            date: Timestamp.fromDate(date),
+            item,
+            quantity,
+            unitPrice,
+            totalAmount,
+            notes: notes || null,
+            updatedAt: Timestamp.now(),
+        })
+
+        revalidatePath("/finance")
+        if (batchId) revalidatePath(`/batches/${batchId}`)
+        return { message: "Vente mise à jour avec succès", success: true }
+    } catch (error) {
+        console.error("Failed to update sale:", error)
+        return { message: "Erreur lors de la mise à jour de la vente" }
+    }
+}
+
+export async function deleteSale(saleId: string) {
+    if (!saleId) return { message: "ID manquant" }
+
+    try {
+        await deleteDoc(doc(db, "sales", saleId))
+        revalidatePath("/finance")
+        return { message: "Vente supprimée avec succès", success: true }
+    } catch (error) {
+        console.error("Failed to delete sale:", error)
+        return { message: "Erreur lors de la suppression de la vente" }
+    }
+}
+
+export async function updateExpense(prevState: any, formData: FormData) {
+    const id = formData.get("id") as string
+    const userId = formData.get("userId") as string
+
+    if (!id || !userId) return { message: "Information manquante" }
+
+    const validatedFields = expenseSchema.safeParse({
+        date: formData.get("date"),
+        category: formData.get("category"),
+        amount: formData.get("amount"),
+        notes: formData.get("notes"),
+    })
+
+    if (!validatedFields.success) {
+        return {
+            errors: validatedFields.error.flatten().fieldErrors,
+            message: "Erreur de validation",
+        }
+    }
+
+    try {
+        const expenseRef = doc(db, "expenses", id)
+        await updateDoc(expenseRef, {
+            ...validatedFields.data,
+            updatedAt: Timestamp.now(),
+        })
+
+        revalidatePath("/finance")
+        return { message: "Dépense mise à jour avec succès", success: true }
+    } catch (error) {
+        console.error("Failed to update expense:", error)
+        return { message: "Erreur lors de la mise à jour de la dépense" }
+    }
+}
+
+export async function deleteExpense(expenseId: string) {
+    if (!expenseId) return { message: "ID manquant" }
+
+    try {
+        await deleteDoc(doc(db, "expenses", expenseId))
+        revalidatePath("/finance")
+        return { message: "Dépense supprimée avec succès", success: true }
+    } catch (error) {
+        console.error("Failed to delete expense:", error)
+        return { message: "Erreur lors de la suppression de la dépense" }
+    }
+}
+
 export async function getSales(userId?: string) {
     if (!userId) return []
 
@@ -170,6 +278,32 @@ export async function getSalesByBatch(batchId: string) {
         return sales
     } catch (error) {
         console.error("Failed to fetch batch sales:", error)
+        return []
+    }
+}
+
+export async function getExpensesByBatch(batchId: string) {
+    try {
+        const q = query(
+            collection(db, "expenses"),
+            where("batchId", "==", batchId),
+            orderBy("date", "desc")
+        )
+        const querySnapshot = await getDocs(q)
+        const expenses: Expense[] = []
+        querySnapshot.forEach((doc) => {
+            const data = doc.data()
+            expenses.push({
+                id: doc.id,
+                ...data,
+                date: data.date?.toDate(),
+                createdAt: data.createdAt?.toDate(),
+                updatedAt: data.updatedAt?.toDate(),
+            } as Expense)
+        })
+        return expenses
+    } catch (error) {
+        console.error("Failed to fetch batch expenses:", error)
         return []
     }
 }
