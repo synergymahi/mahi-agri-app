@@ -20,8 +20,8 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { updateInventoryItem } from "@/app/actions/inventory-actions"
-import { useFormState, useFormStatus } from "react-dom"
-import { useEffect, useState } from "react"
+import { useFormStatus } from "react-dom"
+import { useActionState, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { Pencil } from "lucide-react"
 import { InventoryItem } from "@/types"
@@ -48,7 +48,7 @@ interface EditInventoryDialogProps {
 
 export function EditInventoryDialog({ item }: EditInventoryDialogProps) {
     const [open, setOpen] = useState(false)
-    const [state, formAction] = useFormState(updateInventoryItem, initialState)
+    const [state, formAction] = useActionState(updateInventoryItem, initialState)
     const { user } = useAuth()
 
     useEffect(() => {

@@ -20,8 +20,8 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { updateExpense } from "@/app/actions/finance-actions"
-import { useFormState, useFormStatus } from "react-dom"
-import { useEffect, useState } from "react"
+import { useFormStatus } from "react-dom"
+import { useActionState, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { Pencil } from "lucide-react"
 import { Expense } from "@/types"
@@ -49,7 +49,7 @@ interface EditExpenseDialogProps {
 
 export function EditExpenseDialog({ expense }: EditExpenseDialogProps) {
     const [open, setOpen] = useState(false)
-    const [state, formAction] = useFormState(updateExpense, initialState)
+    const [state, formAction] = useActionState(updateExpense, initialState)
     const { user } = useAuth()
 
     useEffect(() => {

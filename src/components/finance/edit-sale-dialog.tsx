@@ -13,8 +13,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { updateSale } from "@/app/actions/finance-actions"
-import { useFormState, useFormStatus } from "react-dom"
-import { useEffect, useState } from "react"
+import { useFormStatus } from "react-dom"
+import { useActionState, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { Pencil } from "lucide-react"
 import { Sale } from "@/types"
@@ -42,7 +42,7 @@ interface EditSaleDialogProps {
 
 export function EditSaleDialog({ sale }: EditSaleDialogProps) {
     const [open, setOpen] = useState(false)
-    const [state, formAction] = useFormState(updateSale, initialState)
+    const [state, formAction] = useActionState(updateSale, initialState)
     const { user } = useAuth()
 
     useEffect(() => {
