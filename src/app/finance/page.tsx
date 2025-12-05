@@ -3,6 +3,10 @@
 import { getSales, getExpenses } from "@/app/actions/finance-actions"
 import { CreateSaleDialog } from "@/components/finance/create-sale-dialog"
 import { CreateExpenseDialog } from "@/components/finance/create-expense-dialog"
+import { EditSaleDialog } from "@/components/finance/edit-sale-dialog"
+import { DeleteSaleDialog } from "@/components/finance/delete-sale-dialog"
+import { EditExpenseDialog } from "@/components/finance/edit-expense-dialog"
+import { DeleteExpenseDialog } from "@/components/finance/delete-expense-dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { format } from "date-fns"
@@ -120,13 +124,19 @@ export default function FinancePage() {
                                             {format(new Date(sale.date), "dd MMM yyyy", { locale: fr })}
                                         </p>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="font-bold text-green-600">
-                                            +{sale.totalAmount.toLocaleString("fr-FR", { style: "currency", currency: "XOF" })}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {sale.quantity} x {sale.unitPrice}
-                                        </p>
+                                    <div className="flex items-center gap-4">
+                                        <div className="text-right">
+                                            <p className="font-bold text-green-600">
+                                                +{sale.totalAmount.toLocaleString("fr-FR", { style: "currency", currency: "XOF" })}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {sale.quantity} x {sale.unitPrice}
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <EditSaleDialog sale={sale} />
+                                            <DeleteSaleDialog sale={sale} />
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -151,10 +161,16 @@ export default function FinancePage() {
                                             {format(new Date(expense.date), "dd MMM yyyy", { locale: fr })}
                                         </p>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="font-bold text-red-600">
-                                            -{expense.amount.toLocaleString("fr-FR", { style: "currency", currency: "XOF" })}
-                                        </p>
+                                    <div className="flex items-center gap-4">
+                                        <div className="text-right">
+                                            <p className="font-bold text-red-600">
+                                                -{expense.amount.toLocaleString("fr-FR", { style: "currency", currency: "XOF" })}
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <EditExpenseDialog expense={expense} />
+                                            <DeleteExpenseDialog expense={expense} />
+                                        </div>
                                     </div>
                                 </div>
                             ))}
