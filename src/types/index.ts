@@ -122,3 +122,59 @@ export interface FarmProfile {
 }
 
 
+
+// Crop Module Types
+
+export interface Parcel {
+    id: string
+    userId: string
+    name: string
+    area: number // in hectares or m2, maybe let user specify unit or standardize
+    unit: "HA" | "M2"
+    soilType?: string
+    location?: string
+    notes?: string
+    createdAt?: Date
+    updatedAt?: Date
+}
+
+export type CropStatus = "PLANNED" | "ACTIVE" | "HARVESTED" | "FAILED"
+
+export interface Crop {
+    id: string
+    userId: string
+    parcelId: string
+    name: string // e.g., "Maïs Zone A"
+    variety: string
+    startDate: Date // Planting date or planned start
+    endDate?: Date // Harvest date
+    status: CropStatus
+    expectedYield?: number
+    actualYield?: number
+    notes?: string
+    createdAt?: Date
+    updatedAt?: Date
+}
+
+export type OperationType =
+    | "PLOUGHING" // Labour
+    | "SOWING" // Semis
+    | "FERTILIZATION" // Fertilisation
+    | "IRRIGATION" // Irrigation
+    | "TREATMENT" // Traitement/Entretien
+    | "HARVEST" // Récolte
+    | "OTHER"
+
+export interface CropOperation {
+    id: string
+    userId: string
+    cropId: string
+    date: Date
+    type: OperationType
+    description: string
+    cost?: number
+    notes?: string
+    status: "PENDING" | "COMPLETED"
+    createdAt?: Date
+    updatedAt?: Date
+}
