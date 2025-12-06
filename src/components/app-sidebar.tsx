@@ -10,6 +10,7 @@ import {
   DollarSign,
   Menu,
   LogOut,
+  Sprout,
 } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
 import { Button } from "@/components/ui/button"
@@ -43,6 +44,11 @@ const items = [
     title: "Inventaire",
     url: "/inventory",
     icon: Package,
+  },
+  {
+    title: "Cultures",
+    url: "/crops",
+    icon: Sprout,
   },
   {
     title: "Finance",
