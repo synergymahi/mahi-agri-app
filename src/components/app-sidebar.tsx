@@ -11,6 +11,7 @@ import {
   Menu,
   LogOut,
   Sprout,
+  Store,
 } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
 import { Button } from "@/components/ui/button"
@@ -49,6 +50,11 @@ const items = [
     title: "Cultures",
     url: "/crops",
     icon: Sprout,
+  },
+  {
+    title: "Commerce",
+    url: "/commerce",
+    icon: Store,
   },
   {
     title: "Finance",

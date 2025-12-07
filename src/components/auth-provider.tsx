@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [])
 
     useEffect(() => {
-        if (!loading && !user && pathname !== "/login") {
+        if (!loading && !user && pathname !== "/login" && !pathname?.startsWith("/shop")) {
             router.push("/login")
         }
     }, [user, loading, pathname, router])
