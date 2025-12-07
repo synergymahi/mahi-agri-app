@@ -178,3 +178,58 @@ export interface CropOperation {
     createdAt?: Date
     updatedAt?: Date
 }
+
+// Commerce Module Types
+
+export interface Product {
+    id: string
+    userId: string
+    name: string
+    category: "CROP" | "LIVESTOCK" | "PROCESSED" | "OTHER"
+    description?: string
+    unit: string // kg, sac, tête, etc.
+    price: number
+    region?: string // Prix recommandé par région ?
+    stock?: number
+    imageUrl?: string // Deprecated, use images
+    images?: string[]
+    createdAt?: Date
+    updatedAt?: Date
+}
+
+export interface Customer {
+    id: string
+    userId: string
+    name: string
+    type: "WHOLESALER" | "RETAILER" | "RESTAURANT" | "INDIVIDUAL"
+    phone: string
+    address?: string
+    createdAt?: Date
+    updatedAt?: Date
+}
+
+export type OrderStatus = "PENDING" | "PAID" | "DELIVERED" | "CANCELLED"
+
+export interface OrderItem {
+    productId: string
+    productName: string
+    quantity: number
+    unitPrice: number
+    total: number
+}
+
+export interface Order {
+    id: string
+    userId: string
+    customerId: string
+    customerName: string
+    items: OrderItem[]
+    totalAmount: number
+    status: OrderStatus
+    paymentMethod?: "CASH" | "MOBILE_MONEY" | "BANK_TRANSFER"
+    paymentReference?: string // ID Transaction Mobile Money
+    date: Date
+    notes?: string
+    createdAt?: Date
+    updatedAt?: Date
+}
