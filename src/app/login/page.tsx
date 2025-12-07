@@ -40,12 +40,20 @@ export default function LoginPage() {
             const confirmation = await signInWithPhoneNumber(auth, phoneNumber, appVerifier)
             setConfirmationResult(confirmation)
             toast.success("Code envoyé par SMS.")
+            if (window.recaptchaVerifier) {
+                window.recaptchaVerifier.clear()
+                window.recaptchaVerifier = undefined
+            }
         } catch (error: any) {
             console.error(error)
             if (error.code === 'auth/operation-not-allowed') {
                 toast.error("L'authentification par téléphone n'est pas activée dans la console Firebase.")
+            } else if (error.code === 'auth/invalid-app-credential') {
+                toast.error("Erreur de configuration Firebase (Domaine non autorisé ou problème reCAPTCHA). Essayez un numéro de test.")
+            } else if (error.code === 'auth/too-many-requests') {
+                toast.error("Trop de tentatives. Veuillez réessayer plus tard.")
             } else {
-                toast.error("Erreur lors de l'envoi du code. Vérifiez le numéro.")
+                toast.error("Erreur lors de l'envoi du code: " + error.message)
             }
             // Reset recaptcha on error
             if (window.recaptchaVerifier) {
