@@ -103,7 +103,7 @@ export default function ShopPage() {
                                     )}
                                     <div className="absolute top-2 right-2">
                                         <Badge variant="secondary" className="bg-white/90 text-black backdrop-blur">
-                                            {product.type === "CROP" ? "Culture" : product.category}
+                                            {product.category === "CROP" ? "Culture" : product.category}
                                         </Badge>
                                     </div>
                                 </div>
