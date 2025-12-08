@@ -4,6 +4,7 @@
 import { usePathname } from "next/navigation"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
+import { BottomNav } from "@/components/bottom-nav"
 import { ProfileBanner } from "@/components/profile-banner"
 import { Toaster } from "@/components/ui/sonner"
 
@@ -18,7 +19,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                     <div className="container flex h-14 items-center">
                         <div className="mr-4 flex">
                             <a href="/shop" className="mr-6 flex items-center space-x-2">
-                                <span className="font-bold text-xl text-emerald-700">Mahi Agri Shop</span>
+                                <span className="font-bold text-xl text-emerald-700">Lafermedemahi</span>
                             </a>
                         </div>
                     </div>
@@ -38,11 +39,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 <ProfileBanner />
                 <div className="flex items-center p-4 border-b">
                     <SidebarTrigger />
-                    <h1 className="ml-4 font-semibold">Mahi Agri App</h1>
+                    <h1 className="ml-4 font-semibold">Lafermedemahi</h1>
                 </div>
-                <div className="p-4 flex-1">
+                <div className="p-4 flex-1 pb-20 md:pb-4">
                     {children}
                 </div>
+                <BottomNav />
             </main>
             <Toaster />
         </SidebarProvider>

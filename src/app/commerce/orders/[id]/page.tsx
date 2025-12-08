@@ -94,7 +94,7 @@ export default function OrderDetailPage() {
                         <p className="text-sm text-gray-500 mt-1">№ {order.id.toUpperCase()}</p>
                     </div>
                     <div className="text-right">
-                        <h2 className="text-xl font-bold">Mahi Agri</h2>
+                        <h2 className="text-xl font-bold">Lafermedemahi</h2>
                         <p className="text-sm text-gray-500">Plateforme Agricole</p>
                         <p className="text-sm text-gray-500">{user?.phoneNumber}</p>
                     </div>
@@ -157,7 +157,7 @@ export default function OrderDetailPage() {
                 </div>
 
                 <CardFooter className="mt-12 text-center text-xs text-gray-400 border-t pt-4">
-                    Merci de votre confiance. Généré par Mahi Agri App.
+                    Merci de votre confiance. Généré par Lafermedemahi.
                 </CardFooter>
             </Card>
         </div>

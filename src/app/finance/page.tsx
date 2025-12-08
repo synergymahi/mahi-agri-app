@@ -58,20 +58,20 @@ export default function FinancePage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Finance</h2>
                     <p className="text-muted-foreground">
                         Vue d'ensemble de la santé financière de l'exploitation.
                     </p>
                 </div>
-                <div className="flex items-center gap-2">
-                    <CreateExpenseDialog />
-                    <CreateSaleDialog />
+                <div className="flex items-center gap-2 w-full md:w-auto">
+                    <div className="flex-1 md:flex-none"><CreateExpenseDialog /></div>
+                    <div className="flex-1 md:flex-none"><CreateSaleDialog /></div>
                 </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Revenu Total</CardTitle>
@@ -109,7 +109,7 @@ export default function FinancePage() {
 
             <Separator />
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                 <Card>
                     <CardHeader>
                         <CardTitle>Dernières Ventes</CardTitle>
@@ -117,15 +117,15 @@ export default function FinancePage() {
                     <CardContent>
                         <div className="space-y-4">
                             {sales.slice(0, 5).map((sale) => (
-                                <div key={sale.id} className="flex items-center justify-between border-b pb-2 last:border-0">
+                                <div key={sale.id} className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-4 mb-4 last:border-0 last:mb-0 gap-4">
                                     <div>
                                         <p className="font-medium">{sale.item}</p>
                                         <p className="text-sm text-muted-foreground">
                                             {format(new Date(sale.date), "dd MMM yyyy", { locale: fr })}
                                         </p>
                                     </div>
-                                    <div className="flex items-center gap-4">
-                                        <div className="text-right">
+                                    <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
+                                        <div className="text-left sm:text-right">
                                             <p className="font-bold text-green-600">
                                                 +{sale.totalAmount.toLocaleString("fr-FR", { style: "currency", currency: "XOF" })}
                                             </p>
@@ -154,15 +154,15 @@ export default function FinancePage() {
                     <CardContent>
                         <div className="space-y-4">
                             {expenses.slice(0, 5).map((expense) => (
-                                <div key={expense.id} className="flex items-center justify-between border-b pb-2 last:border-0">
+                                <div key={expense.id} className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-4 mb-4 last:border-0 last:mb-0 gap-4">
                                     <div>
                                         <p className="font-medium">{expense.category}</p>
                                         <p className="text-sm text-muted-foreground">
                                             {format(new Date(expense.date), "dd MMM yyyy", { locale: fr })}
                                         </p>
                                     </div>
-                                    <div className="flex items-center gap-4">
-                                        <div className="text-right">
+                                    <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
+                                        <div className="text-left sm:text-right">
                                             <p className="font-bold text-red-600">
                                                 -{expense.amount.toLocaleString("fr-FR", { style: "currency", currency: "XOF" })}
                                             </p>
