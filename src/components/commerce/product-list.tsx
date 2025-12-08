@@ -45,7 +45,7 @@ export function ProductList({ products }: ProductListProps) {
     }
 
     return (
-        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-3 lg:grid-cols-4">
             {products.map((product) => (
                 <Card key={product.id} className="overflow-hidden group">
                     <div className="relative aspect-video w-full bg-muted">

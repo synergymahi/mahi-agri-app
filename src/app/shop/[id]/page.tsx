@@ -40,7 +40,7 @@ export default function ProductDetailPage() {
         // For MVP, we'll use a placeholder or generic platform number if not found.
 
         const phoneNumber = "22500000000" // Replace with dynamic seller phone
-        const message = `Bonjour, je suis intéressé par votre produit: ${product.name} sur Mahi Agri.`
+        const message = `Bonjour, je suis intéressé par votre produit: ${product.name} sur Lafermedemahi.`
         window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank')
     }
 
@@ -135,7 +135,7 @@ export default function ProductDetailPage() {
                     <div className="flex items-start gap-2 text-xs text-muted-foreground pt-4">
                         <Info className="h-4 w-4" />
                         <p>
-                            Mahi Agri agit en tant qu'intermédiaire de mise en relation.
+                            Lafermedemahi agit en tant qu'intermédiaire de mise en relation.
                             Vérifiez toujours la qualité du produit avant le paiement final.
                         </p>
                     </div>

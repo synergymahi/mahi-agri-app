@@ -78,7 +78,7 @@ export function AppSidebar() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <Bird className="h-5 w-5" />
           </div>
-          <div className="font-bold text-lg">Mahi Agri</div>
+          <div className="font-bold text-lg">Lafermedemahi</div>
         </div>
       </SidebarHeader>
       <SidebarContent>
