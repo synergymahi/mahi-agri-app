@@ -7,6 +7,7 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { BottomNav } from "@/components/bottom-nav"
 import { ProfileBanner } from "@/components/profile-banner"
 import { Toaster } from "@/components/ui/sonner"
+import Image from "next/image"
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
@@ -19,6 +20,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                     <div className="container flex h-14 items-center">
                         <div className="mr-4 flex">
                             <a href="/shop" className="mr-6 flex items-center space-x-2">
+                                <Image src="/logo.png" alt="Logo" width={32} height={32} className="rounded-full border" />
                                 <span className="font-bold text-xl text-emerald-700">Lafermedemahi</span>
                             </a>
                         </div>
@@ -39,7 +41,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 <ProfileBanner />
                 <div className="flex items-center p-4 border-b">
                     <SidebarTrigger />
-                    <h1 className="ml-4 font-semibold">Lafermedemahi</h1>
+                    <div className="ml-4 flex items-center gap-2">
+                        <Image src="/logo.png" alt="Logo" width={24} height={24} className="rounded-full border object-cover" />
+                        <h1 className="font-semibold">Lafermedemahi</h1>
+                    </div>
                 </div>
                 <div className="p-4 flex-1 pb-20 md:pb-4">
                     {children}
