@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 
 import {
   Sidebar,
@@ -75,8 +76,8 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader>
         <div className="flex items-center gap-2 px-4 py-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Bird className="h-5 w-5" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg overflow-hidden bg-white border">
+            <Image src="/logo.png" alt="Logo" width={32} height={32} className="object-cover" />
           </div>
           <div className="font-bold text-lg">Lafermedemahi</div>
         </div>
