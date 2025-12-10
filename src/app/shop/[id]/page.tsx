@@ -39,7 +39,7 @@ export default function ProductDetailPage() {
         // Wait, we didn't add sellerPhone to Product type in previous steps, only userId.
         // For MVP, we'll use a placeholder or generic platform number if not found.
 
-        const phoneNumber = "22500000000" // Replace with dynamic seller phone
+        const phoneNumber = "+33769890974" // Replace with dynamic seller phone
         const message = `Bonjour, je suis intéressé par votre produit: ${product.name} sur Lafermedemahi.`
         window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank')
     }
