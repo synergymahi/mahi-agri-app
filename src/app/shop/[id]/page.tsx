@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { MapPin, Phone, MessageCircle, ArrowLeft, Tag, Info } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import ReactMarkdown from "react-markdown"
 
 export default function ProductDetailPage() {
     const params = useParams()
@@ -34,30 +35,20 @@ export default function ProductDetailPage() {
 
     const handleWhatsApp = () => {
         if (!product) return
-        // Ideally fetch seller phone. For now using a placeholder or user's phone if available in product data (Product should ideally have sellerPhone).
-        // Since we didn't explicitly add sellerPhone to Product type yet, let's assume a platform generic number or if we added it.
-        // Wait, we didn't add sellerPhone to Product type in previous steps, only userId.
-        // For MVP, we'll use a placeholder or generic platform number if not found.
-
         const phoneNumber = "+33769890974" // Replace with dynamic seller phone
         const message = `Bonjour, je suis intéressé par votre produit: ${product.name} sur Lafermedemahi.`
         window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank')
     }
 
-    if (loading) {
-        return <div className="container py-10"><Skeleton className="h-[500px] w-full" /></div>
-    }
-
-    if (!product) {
-        return (
-            <div className="container py-20 text-center">
-                <h1 className="text-2xl font-bold">Produit introuvable</h1>
-                <Link href="/shop">
-                    <Button variant="link" className="mt-4">Retour à la boutique</Button>
-                </Link>
-            </div>
-        )
-    }
+    if (loading) return <div className="container py-10"><Skeleton className="h-[500px] w-full" /></div>
+    if (!product) return (
+        <div className="container py-20 text-center">
+            <h1 className="text-2xl font-bold">Produit introuvable</h1>
+            <Link href="/shop">
+                <Button variant="link" className="mt-4">Retour à la boutique</Button>
+            </Link>
+        </div>
+    )
 
     const allImages = product.images && product.images.length > 0
         ? product.images
@@ -118,7 +109,7 @@ export default function ProductDetailPage() {
                     </div>
 
                     <div className="prose prose-stone max-w-none text-muted-foreground bg-muted/20 p-4 rounded-lg">
-                        <p>{product.description || "Aucune description disponible."}</p>
+                        <ReactMarkdown>{product.description || "Aucune description disponible."}</ReactMarkdown>
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t">

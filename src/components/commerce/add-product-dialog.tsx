@@ -147,8 +147,11 @@ export function AddProductDialog() {
                                 id="description"
                                 name="description"
                                 className="col-span-3"
-                                placeholder="Détails du produit..."
+                                placeholder="Détails du produit (Markdown supporté : **gras**, - liste, etc.)"
                             />
+                            <p className="text-xs text-muted-foreground text-right col-start-2 col-span-3">
+                                Markdown supporté : **gras**, *italique*, - liste
+                            </p>
                         </div>
                         <div className="grid grid-cols-4 items-start gap-4">
                             <Label className="text-right pt-2">
