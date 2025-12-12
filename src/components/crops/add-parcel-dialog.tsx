@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -42,15 +43,22 @@ function SubmitButton() {
     )
 }
 
-export function AddParcelDialog() {
+interface AddParcelDialogProps {
+    onSuccess?: () => void
+}
+
+export function AddParcelDialog({ onSuccess }: AddParcelDialogProps) {
     const [open, setOpen] = useState(false)
     const [state, formAction] = useActionState(createParcel, initialState)
     const { user } = useAuth()
+    const router = useRouter()
 
     useEffect(() => {
         if (state.success) {
             setOpen(false)
             toast.success("Parcelle ajoutée avec succès")
+            router.refresh()
+            if (onSuccess) onSuccess()
         } else if (state.message && state.message !== "") {
             toast.error(state.message)
         }

@@ -14,15 +14,15 @@ export default function BatchesPage() {
     const [batches, setBatches] = useState<Batch[]>([])
     const [fetching, setFetching] = useState(true)
 
-    useEffect(() => {
-        async function fetchBatches() {
-            if (user?.uid) {
-                const data = await getBatches(user.uid)
-                setBatches(data)
-            }
-            setFetching(false)
+    async function fetchBatches() {
+        if (user?.uid) {
+            const data = await getBatches(user.uid)
+            setBatches(data)
         }
+        setFetching(false)
+    }
 
+    useEffect(() => {
         if (!loading) {
             if (user) {
                 fetchBatches()
@@ -49,7 +49,7 @@ export default function BatchesPage() {
                         Gérez vos bandes de poules, poulets et porcs.
                     </p>
                 </div>
-                <CreateBatchDialog />
+                <CreateBatchDialog onSuccess={fetchBatches} />
             </div>
             <Separator />
             <BatchList initialBatches={batches} />

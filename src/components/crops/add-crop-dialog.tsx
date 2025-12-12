@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -45,17 +46,21 @@ function SubmitButton() {
 
 interface AddCropDialogProps {
     parcels: Parcel[]
+    onSuccess?: () => void
 }
 
-export function AddCropDialog({ parcels }: AddCropDialogProps) {
+export function AddCropDialog({ parcels, onSuccess }: AddCropDialogProps) {
     const [open, setOpen] = useState(false)
     const [state, formAction] = useActionState(createCrop, initialState)
     const { user } = useAuth()
+    const router = useRouter()
 
     useEffect(() => {
         if (state.success) {
             setOpen(false)
             toast.success("Culture planifiée avec succès")
+            router.refresh()
+            if (onSuccess) onSuccess()
         } else if (state.message && state.message !== "") {
             toast.error(state.message)
         }
