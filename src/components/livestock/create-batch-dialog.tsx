@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Plus } from "lucide-react"
@@ -43,9 +44,14 @@ const formSchema = z.object({
     initialCount: z.coerce.number().min(1, "L'effectif doit être positif"),
 })
 
-export function CreateBatchDialog() {
+interface CreateBatchDialogProps {
+    onSuccess?: () => void
+}
+
+export function CreateBatchDialog({ onSuccess }: CreateBatchDialogProps) {
     const { user } = useAuth()
     const [open, setOpen] = useState(false)
+    const router = useRouter()
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema) as any,
         defaultValues: {
@@ -75,6 +81,8 @@ export function CreateBatchDialog() {
             setOpen(false)
             form.reset()
             toast.success("Bande créée avec succès")
+            router.refresh()
+            if (onSuccess) onSuccess()
         } else {
             console.error(result?.message)
             toast.error(result?.message || "Erreur lors de la création")

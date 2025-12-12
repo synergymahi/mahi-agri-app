@@ -20,18 +20,19 @@ export default function CropsPage() {
     const [crops, setCrops] = useState<Crop[]>([])
     const [loading, setLoading] = useState(true)
 
-    useEffect(() => {
-        async function loadData() {
-            if (user) {
-                const [userParcels, userCrops] = await Promise.all([
-                    getParcels(user.uid),
-                    getCrops(user.uid),
-                ])
-                setParcels(userParcels)
-                setCrops(userCrops)
-            }
-            setLoading(false)
+    async function loadData() {
+        if (user) {
+            const [userParcels, userCrops] = await Promise.all([
+                getParcels(user.uid),
+                getCrops(user.uid),
+            ])
+            setParcels(userParcels)
+            setCrops(userCrops)
         }
+        setLoading(false)
+    }
+
+    useEffect(() => {
         loadData()
     }, [user])
 
@@ -64,8 +65,8 @@ export default function CropsPage() {
                     </p>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <AddParcelDialog />
-                    <AddCropDialog parcels={parcels} />
+                    <AddParcelDialog onSuccess={loadData} />
+                    <AddCropDialog parcels={parcels} onSuccess={loadData} />
                 </div>
             </div>
 
@@ -76,7 +77,7 @@ export default function CropsPage() {
                     <div className="flex flex-col items-center justify-center p-8 border rounded-lg bg-muted/10 border-dashed">
                         <Sprout className="h-10 w-10 text-muted-foreground mb-4" />
                         <p className="text-muted-foreground mb-4">Aucune culture active.</p>
-                        <AddCropDialog parcels={parcels} />
+                        <AddCropDialog parcels={parcels} onSuccess={loadData} />
                     </div>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -116,7 +117,7 @@ export default function CropsPage() {
                 {parcels.length === 0 ? (
                     <div className="flex flex-col items-center justify-center p-8 border rounded-lg bg-muted/10 border-dashed">
                         <p className="text-muted-foreground mb-4">Aucune parcelle enregistrée.</p>
-                        <AddParcelDialog />
+                        <AddParcelDialog onSuccess={loadData} />
                     </div>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">

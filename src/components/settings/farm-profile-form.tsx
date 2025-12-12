@@ -47,12 +47,21 @@ export function FarmProfileForm({ initialData }: FarmProfileFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const { user } = useAuth()
 
+    const getInitialPhone = () => {
+        if (initialData?.phoneNumber) return initialData.phoneNumber
+        if (user?.phoneNumber) return user.phoneNumber
+        if (user?.email && user.email.endsWith("@mahi.internal")) {
+            return "+" + user.email.split("@")[0]
+        }
+        return ""
+    }
+
     const form = useForm<any>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             farmName: initialData?.farmName || "",
             ownerName: initialData?.ownerName || "",
-            phoneNumber: initialData?.phoneNumber || user?.phoneNumber || "",
+            phoneNumber: getInitialPhone(),
             location: initialData?.location || "",
             farmingTypes: initialData?.farmingTypes || [],
             capacities: initialData?.capacities || {},
