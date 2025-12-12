@@ -29,15 +29,38 @@ export default function LoginPage() {
     }, [])
 
     const requestOtp = async () => {
-        if (!phoneNumber || phoneNumber.length < 8) {
-            toast.error("Veuillez entrer un numéro de téléphone valide.")
+        // Basic cleaning: remove all non-digits
+        let cleanNumber = phoneNumber.replace(/\D/g, '')
+
+        // If it looks like a local number (10 digits starting with 0), add +225
+        if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
+            cleanNumber = '+225' + cleanNumber
+        } else if (!cleanNumber.startsWith('+')) {
+            // If user didnt put +, assume it might mean +225 if length matches without 0 prefix, 
+            // but simpler to just prepend + if missing, or handle standard case.
+            // Actually, standardizing: if it doesn't start with +, add +225 if it looks valid
+            if (cleanNumber.length === 10) {
+                cleanNumber = '+225' + cleanNumber
+            } else {
+                cleanNumber = '+' + cleanNumber
+            }
+        }
+
+        // Final check: should look like E.164 (e.g. +2250707070707)
+        // cleanNumber might have multiple + if I wasn't careful, so let's just make sure it starts with + and rest are digits
+        if (!cleanNumber.startsWith('+')) {
+            cleanNumber = '+' + cleanNumber
+        }
+
+        if (cleanNumber.length < 12) { // +225 + 10 digits = 14 chars approx, min international length
+            toast.error("Veuillez entrer un numéro valide (ex: 0707... ou +225...)")
             return
         }
 
         setIsLoading(true)
         try {
             const appVerifier = window.recaptchaVerifier
-            const confirmation = await signInWithPhoneNumber(auth, phoneNumber, appVerifier)
+            const confirmation = await signInWithPhoneNumber(auth, cleanNumber, appVerifier)
             setConfirmationResult(confirmation)
             toast.success("Code envoyé par SMS.")
             if (window.recaptchaVerifier) {
@@ -45,16 +68,24 @@ export default function LoginPage() {
                 window.recaptchaVerifier = undefined
             }
         } catch (error: any) {
-            console.error(error)
-            if (error.code === 'auth/operation-not-allowed') {
+            console.error("Auth Error:", error)
+
+            // Handle specific -39 / 503 error
+            if (error.message.includes("503") || error.message.includes("error-code:-39")) {
+                toast.error("Service indisponible pour ce numéro. Utilisez un Numéro de Test Firebase.", {
+                    description: "Ajoutez votre numéro dans la console Firebase > Authentication > Sign-in method > Phone > Numéros pour le test.",
+                    duration: 10000,
+                })
+            } else if (error.code === 'auth/operation-not-allowed') {
                 toast.error("L'authentification par téléphone n'est pas activée dans la console Firebase.")
             } else if (error.code === 'auth/invalid-app-credential') {
-                toast.error("Erreur de configuration Firebase (Domaine non autorisé ou problème reCAPTCHA). Essayez un numéro de test.")
+                toast.error("Erreur de configuration Firebase (Domaine non autorisé ou problème reCAPTCHA).")
             } else if (error.code === 'auth/too-many-requests') {
                 toast.error("Trop de tentatives. Veuillez réessayer plus tard.")
             } else {
-                toast.error("Erreur lors de l'envoi du code: " + error.message)
+                toast.error("Erreur: " + error.message)
             }
+
             // Reset recaptcha on error
             if (window.recaptchaVerifier) {
                 window.recaptchaVerifier.clear()
